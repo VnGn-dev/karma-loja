@@ -1,0 +1,7 @@
+services:
+  api:
+    build: .
+    container_name: karma-api
+    restart: unless-stopped
+    ports:
+      - "${BIND_IP}:8000:8000"

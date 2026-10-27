@@ -3,5 +3,28 @@ services:
     build: .
     container_name: karma-api
     restart: unless-stopped
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
-            - "${BIND_IP:?Crie o arquivo .env com BIND_IP}:8000:8000"
+      - "${BIND_IP:?Crie o arquivo .env com BIND_IP}:8000:8000"
+
+  db:
+    image: postgres:17
+    container_name: karma-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?Defina POSTGRES_USER no .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no .env}
+      POSTGRES_DB: ${POSTGRES_DB:?Defina POSTGRES_DB no .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:

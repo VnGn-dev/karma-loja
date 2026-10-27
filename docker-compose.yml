@@ -4,4 +4,4 @@ services:
     container_name: karma-api
     restart: unless-stopped
     ports:
-      - "${BIND_IP}:8000:8000"
+            - "${BIND_IP:?Crie o arquivo .env com BIND_IP}:8000:8000"

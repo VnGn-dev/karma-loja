@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from decimal import Decimal
 
 from sqlmodel import Field, SQLModel
@@ -22,4 +22,4 @@ class Produto(SQLModel, table=True):
     frete_gratis: bool = True
     imagem: str | None = None
     categoria_id: int | None = Field(default=None, foreign_key="categoria.id")
-    criado_em: datetime = Field(default_factory=datetime.now)
+    criado_em: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

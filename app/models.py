@@ -1,6 +1,5 @@
 from datetime import datetime, timezone
-from decimal import Decimal
-
+from decimal import ROUND_HALF_UP, Decimal
 from sqlmodel import Field, SQLModel
 
 
@@ -22,4 +21,13 @@ class Produto(SQLModel, table=True):
     frete_gratis: bool = True
     imagem: str | None = None
     categoria_id: int | None = Field(default=None, foreign_key="categoria.id")
-    criado_em: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    criado_em: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))  
+    
+    @property
+    def preco_pix(self) -> Decimal:
+        desconto = self.preco * Decimal("0.95")
+        return desconto.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+    @property
+    def esgotado(self) -> bool:
+        return self.estoque <= 0

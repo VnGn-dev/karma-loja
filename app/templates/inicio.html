@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block conteudo %}
+<section class="destaque">
+  <h1>Peças feitas à mão para iluminar a sua casa</h1>
+  <p>Porta-velas e objetos de decoração criados no Studio Kar.ma.</p>
+  <a href="/produtos" class="botao">Ver produtos</a>
+</section>
+
+<h2>Destaques</h2>
+<div class="grade">
+  {% for produto in produtos %}
+    <a href="/produtos/{{ produto.slug }}" class="cartao">
+      <div class="foto">{{ produto.nome[0] }}</div>
+      <h3>{{ produto.nome }}</h3>
+      {% if produto.esgotado %}
+        <p class="esgotado">Esgotado</p>
+      {% else %}
+        <p class="preco">{{ produto.preco | brl }}</p>
+        <p class="pix">{{ produto.preco_pix | brl }} no Pix</p>
+      {% endif %}
+    </a>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Kar.ma Clube{% endblock %}</title>
+  <link rel="stylesheet" href="/static/css/estilo.css">
+</head>
+<body>
+  <header class="cabecalho">
+    <a href="/" class="logo">Kar.ma Clube</a>
+    <nav>
+      <a href="/">Início</a>
+      <a href="/produtos">Produtos</a>
+      <a href="/sobre">Sobre</a>
+    </nav>
+  </header>
+
+  <main class="conteudo">
+    {% block conteudo %}{% endblock %}
+  </main>
+
+  <footer class="rodape">
+    <p>Kar.ma Clube · Artesanato e decoração feitos à mão</p>
+  </footer>
+</body>
+</html>

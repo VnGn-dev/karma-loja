@@ -3,25 +3,107 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block titulo %}Kar.ma Clube{% endblock %}</title>
+  <title>{% block titulo %}{{ loja.nome }}{% endblock %}</title>
+  <meta name="description" content="{% block descricao %}{{ loja.nome }} · {{ loja.slogan }}{% endblock %}">
+  <link rel="icon" href="{{ loja.logo }}">
   <link rel="stylesheet" href="/static/css/estilo.css">
 </head>
 <body>
+  {# Faixa de aviso no topo, igual à loja atual #}
+  {% if loja.aviso %}
+  <div class="faixa-aviso">
+    <div class="faixa-trilho">
+      {% for _ in range(8) %}<span>°° {{ loja.aviso }} °°</span>{% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
   <header class="cabecalho">
-    <a href="/" class="logo">Kar.ma Clube</a>
-    <nav>
+    <a href="/" class="logo">
+      <img src="{{ loja.logo }}" alt="{{ loja.nome }}">
+    </a>
+
+    <nav class="menu" aria-label="Menu principal">
       <a href="/">Início</a>
-      <a href="/produtos">Produtos</a>
+      <details class="submenu">
+        <summary>Produtos</summary>
+        <div class="submenu-itens">
+          <a href="/produtos">Ver todos os produtos</a>
+          {% for categoria in categorias_menu %}
+            <a href="/categoria/{{ categoria.slug }}">{{ categoria.nome }}</a>
+          {% endfor %}
+        </div>
+      </details>
       <a href="/sobre">Sobre</a>
+      <a href="/contato">Contato</a>
     </nav>
+
+    <a href="/carrinho" class="icone-carrinho" aria-label="Carrinho">
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+        <path d="M6 6h15l-1.5 9h-12z M6 6 5 3H2 M9 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm9 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"
+              fill="none" stroke="currentColor" stroke-width="1.8"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="contador">0</span>
+    </a>
   </header>
+
+  {# Vantagens da loja, logo abaixo do menu #}
+  <div class="vantagens">
+    <span>Frete grátis</span>
+    <span>{{ desconto_pix }}% de desconto no Pix</span>
+    <span>2x sem juros no cartão</span>
+  </div>
 
   <main class="conteudo">
     {% block conteudo %}{% endblock %}
   </main>
 
   <footer class="rodape">
-    <p>Kar.ma Clube · Artesanato e decoração feitos à mão</p>
+    <div class="rodape-colunas">
+      <div>
+        <img src="{{ loja.logo }}" alt="{{ loja.nome }}" class="rodape-logo">
+        <p>{{ loja.slogan }}</p>
+      </div>
+      <div>
+        <h4>Navegação</h4>
+        <a href="/">Início</a>
+        <a href="/produtos">Produtos</a>
+        <a href="/sobre">Sobre</a>
+        <a href="/contato">Contato</a>
+      </div>
+      <div>
+        <h4>Fale com a gente</h4>
+        {% if loja.email %}<a href="mailto:{{ loja.email }}">{{ loja.email }}</a>{% endif %}
+        {% if loja.whatsapp %}<a href="https://wa.me/{{ loja.whatsapp }}" target="_blank" rel="noopener">WhatsApp</a>{% endif %}
+        {% if loja.instagram %}<a href="{{ loja.instagram }}" target="_blank" rel="noopener">Instagram</a>{% endif %}
+        <a href="/contato">Formulário de contato</a>
+      </div>
+    </div>
+    <p class="rodape-final">
+      Pedido mínimo de {{ pedido_minimo | brl }} (sem contar o frete).<br>
+      © {{ loja.nome }}. Todos os direitos reservados.
+    </p>
   </footer>
+
+  {# Aviso de cookies: aparece até a pessoa clicar em "Entendi" #}
+  <div class="aviso-cookies" id="aviso-cookies" hidden>
+    <p>Ao navegar por este site você aceita o uso de cookies para agilizar a sua experiência de compra.</p>
+    <button type="button" class="botao" id="aceitar-cookies">Entendi</button>
+  </div>
+
+  <script>
+    (function () {
+      var aviso = document.getElementById("aviso-cookies");
+      var aceitou = false;
+      try { aceitou = localStorage.getItem("cookies-ok") === "1"; } catch (e) {}
+      if (!aceitou) aviso.hidden = false;
+      document.getElementById("aceitar-cookies").addEventListener("click", function () {
+        try { localStorage.setItem("cookies-ok", "1"); } catch (e) {}
+        aviso.hidden = true;
+      });
+    })();
+  </script>
+  {% block scripts %}{% endblock %}
 </body>
 </html>

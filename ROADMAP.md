@@ -82,22 +82,22 @@ Mensagem       id, nome, email, telefone, texto, criado_em
 Cada etapa termina com um commit e algo funcionando.
 
 ### Etapa 1: Banco de dados e produtos na API
-- [ ] Adicionar o PostgreSQL no `docker-compose.yml` (com volume e `.env`)
-- [ ] Conectar a API ao banco com SQLModel
-- [ ] Criar as tabelas `Categoria` e `Produto`
-- [ ] Script que cadastra os 4 produtos atuais (o "seed")
-- [ ] Rota `GET /api/produtos` (lista)
-- [ ] Rota `GET /api/produtos/{slug}` (um produto, 404 se não existir)
+- [x] Adicionar o PostgreSQL no `docker-compose.yml` (com volume e `.env`)
+- [x] Conectar a API ao banco com SQLModel
+- [x] Criar as tabelas `Categoria` e `Produto`
+- [x] Script que cadastra os 4 produtos atuais (o "seed")
+- [x] Rota `GET /api/produtos` (lista)
+- [x] Rota `GET /api/produtos/{slug}` (um produto, 404 se não existir)
 
 **Pronto quando:** em `/docs`, a lista mostra os 4 produtos vindos do banco.
 
 ### Etapa 2: As páginas da loja
-- [ ] Modelo base (`base.html`): cabeçalho, menu, rodapé, aviso de cookies
-- [ ] Página inicial com produtos em destaque
-- [ ] Página de produtos com filtros (cor, preço) e ordenação
-- [ ] Página do produto (preço, preço no Pix, "esgotado")
-- [ ] Página Sobre (texto da artista)
-- [ ] CSS com as cores e a fonte da marca
+- [x] Modelo base (`base.html`): cabeçalho, menu, rodapé, aviso de cookies
+- [x] Página inicial com produtos em destaque
+- [x] Página de produtos com filtros (cor, preço) e ordenação
+- [x] Página do produto (preço, preço no Pix, "esgotado")
+- [x] Página Sobre (com texto provisório: trocar pelo da artista)
+- [x] CSS com cores provisórias (ajustar com as cores e a fonte da marca)
 
 **Pronto quando:** dá para navegar pela loja inteira no navegador.
 
@@ -131,9 +131,9 @@ Cada etapa termina com um commit e algo funcionando.
 **Pronto quando:** uma compra com cartão de teste chega como "pago" no painel.
 
 ### Etapa 6: Contato
-- [ ] Formulário salva a mensagem no banco
+- [x] Formulário salva a mensagem no banco
 - [ ] Envia um aviso por e-mail
-- [ ] Campo oculto antispam
+- [x] Campo oculto antispam
 
 ### Etapa 7: No ar de verdade
 - [ ] Domínio próprio (Registro.br)

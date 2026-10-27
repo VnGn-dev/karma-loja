@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block titulo %}Contato · {{ loja.nome }}{% endblock %}
+
+{% block conteudo %}
+<div class="pagina-estreita">
+  <h1>Contato</h1>
+  <p>Ficou com alguma dúvida ou quer fazer uma encomenda? Mande uma mensagem.</p>
+
+  {% if enviado %}
+    <p class="mensagem-sucesso">Mensagem enviada! Responderemos em breve.</p>
+  {% endif %}
+  {% if erro %}
+    <p class="mensagem-erro">{{ erro }}</p>
+  {% endif %}
+
+  <form method="post" action="/contato" class="formulario">
+    <label>Nome
+      <input type="text" name="nome" required value="{{ dados.nome or '' }}">
+    </label>
+    <label>E-mail
+      <input type="email" name="email" required value="{{ dados.email or '' }}">
+    </label>
+    <label>Telefone (opcional)
+      <input type="tel" name="telefone" value="{{ dados.telefone or '' }}">
+    </label>
+    <label>Mensagem
+      <textarea name="mensagem" rows="5" required>{{ dados.mensagem or '' }}</textarea>
+    </label>
+
+    {# Armadilha para robôs: escondido para pessoas, robôs costumam preencher #}
+    <label class="armadilha" aria-hidden="true">Não preencha este campo
+      <input type="text" name="site" tabindex="-1" autocomplete="off">
+    </label>
+
+    <button type="submit" class="botao">Enviar</button>
+  </form>
+</div>
+{% endblock %}

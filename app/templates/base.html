@@ -3,96 +3,133 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block titulo %}{{ loja.nome }}{% endblock %}</title>
-  <meta name="description" content="{% block descricao %}{{ loja.nome }} · {{ loja.slogan }}{% endblock %}">
+  <title>{% block titulo %}Loja online de {{ loja.nome }}{% endblock %}</title>
+  <meta name="description" content="{% block descricao %}Loja online de {{ loja.nome }}. Artesanato.{% endblock %}">
   <link rel="icon" href="{{ loja.logo }}">
+  {# Fontes do tema atual: Rubik (textos) e Lexend (títulos) #}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@700&family=Rubik:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/estilo.css">
 </head>
 <body>
-  {# Faixa de aviso no topo, igual à loja atual #}
+  {# ---------- Faixa de aviso rolando no topo ---------- #}
   {% if loja.aviso %}
   <div class="faixa-aviso">
     <div class="faixa-trilho">
-      {% for _ in range(8) %}<span>°° {{ loja.aviso }} °°</span>{% endfor %}
+      {% for _ in range(12) %}<span>°° {{ loja.aviso }} °°</span>{% endfor %}
     </div>
   </div>
   {% endif %}
 
+  {# ---------- Cabeçalho ---------- #}
   <header class="cabecalho">
-    <a href="/" class="logo">
-      <img src="{{ loja.logo }}" alt="{{ loja.nome }}">
-    </a>
+    <div class="cabecalho-linha">
+      {# Esquerda: lupa (computador) ou menu de três tracinhos (celular) #}
+      <div class="cabecalho-esquerda">
+        <details class="busca">
+          <summary aria-label="Buscar">
+            <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+          </summary>
+          <form action="/produtos" method="get" class="busca-form">
+            <input type="search" name="busca" placeholder="O que você está buscando?" aria-label="Buscar produtos">
+            <button type="submit">Buscar</button>
+          </form>
+        </details>
 
+        <details class="menu-celular">
+          <summary aria-label="Abrir menu">
+            <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7h18M3 12h12M3 17h18"/></svg>
+          </summary>
+          <nav class="menu-celular-itens" aria-label="Menu">
+            <form action="/produtos" method="get" class="busca-form">
+              <input type="search" name="busca" placeholder="Buscar" aria-label="Buscar produtos">
+            </form>
+            <a href="/">Início</a>
+            <a href="/produtos">Ver todos os produtos</a>
+            {% for categoria in categorias_menu %}
+              <a href="/categoria/{{ categoria.slug }}">{{ categoria.nome }}</a>
+            {% endfor %}
+            <a href="/contato">Contato</a>
+          </nav>
+        </details>
+      </div>
+
+      <a href="/" class="logo">
+        <img src="{{ loja.logo }}" alt="{{ loja.nome }}">
+      </a>
+
+      <div class="cabecalho-direita">
+        <a href="/carrinho" class="icone-carrinho" aria-label="Carrinho">
+          <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l-1 12H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+          <span class="contador">0</span>
+        </a>
+      </div>
+    </div>
+
+    {# Menu do computador, embaixo do logo #}
     <nav class="menu" aria-label="Menu principal">
       <a href="/">Início</a>
-      <details class="submenu">
-        <summary>Produtos</summary>
+      <div class="submenu">
+        <a href="/produtos" class="submenu-titulo">Produtos</a>
         <div class="submenu-itens">
           <a href="/produtos">Ver todos os produtos</a>
           {% for categoria in categorias_menu %}
             <a href="/categoria/{{ categoria.slug }}">{{ categoria.nome }}</a>
           {% endfor %}
         </div>
-      </details>
-      <a href="/sobre">Sobre</a>
+      </div>
       <a href="/contato">Contato</a>
     </nav>
-
-    <a href="/carrinho" class="icone-carrinho" aria-label="Carrinho">
-      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
-        <path d="M6 6h15l-1.5 9h-12z M6 6 5 3H2 M9 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm9 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"
-              fill="none" stroke="currentColor" stroke-width="1.8"
-              stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <span class="contador">0</span>
-    </a>
   </header>
 
-  {# Vantagens da loja, logo abaixo do menu #}
-  <div class="vantagens">
-    <span>Frete grátis</span>
-    <span>{{ desconto_pix }}% de desconto no Pix</span>
-    <span>2x sem juros no cartão</span>
-  </div>
-
-  <main class="conteudo">
+  <main>
     {% block conteudo %}{% endblock %}
   </main>
 
+  {# ---------- Rodapé ---------- #}
   <footer class="rodape">
-    <div class="rodape-colunas">
-      <div>
-        <img src="{{ loja.logo }}" alt="{{ loja.nome }}" class="rodape-logo">
-        <p>{{ loja.slogan }}</p>
-      </div>
-      <div>
-        <h4>Navegação</h4>
-        <a href="/">Início</a>
-        <a href="/produtos">Produtos</a>
-        <a href="/sobre">Sobre</a>
-        <a href="/contato">Contato</a>
-      </div>
-      <div>
-        <h4>Fale com a gente</h4>
-        {% if loja.email %}<a href="mailto:{{ loja.email }}">{{ loja.email }}</a>{% endif %}
-        {% if loja.whatsapp %}<a href="https://wa.me/{{ loja.whatsapp }}" target="_blank" rel="noopener">WhatsApp</a>{% endif %}
-        {% if loja.instagram %}<a href="{{ loja.instagram }}" target="_blank" rel="noopener">Instagram</a>{% endif %}
-        <a href="/contato">Formulário de contato</a>
-      </div>
-    </div>
-    <p class="rodape-final">
-      Pedido mínimo de {{ pedido_minimo | brl }} (sem contar o frete).<br>
-      © {{ loja.nome }}. Todos os direitos reservados.
-    </p>
+    {% if loja.instagram %}
+      <a href="{{ loja.instagram }}" class="rodape-instagram" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg class="icone" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="0.6"/></svg>
+      </a>
+    {% endif %}
+
+    <nav class="rodape-links">
+      <a href="/">Início</a>
+      <a href="/produtos">Produtos</a>
+      <a href="/contato">Contato</a>
+    </nav>
+
+    <form action="/newsletter" method="post" class="newsletter">
+      <input type="email" name="email" placeholder="Assine nossa newsletter..." aria-label="Seu e-mail" required>
+      <button type="submit">Enviar</button>
+    </form>
+    {% set newsletter = request.query_params.get("newsletter") %}
+    {% if newsletter == "ok" %}
+      <p class="newsletter-aviso">Pronto! Seu e-mail foi cadastrado.</p>
+    {% elif newsletter == "erro" %}
+      <p class="newsletter-aviso">Esse e-mail não parece válido.</p>
+    {% endif %}
+
+    {% if loja.email %}
+      <a href="mailto:{{ loja.email }}" class="rodape-email">{{ loja.email }}</a>
+    {% endif %}
+    {% if loja.whatsapp %}
+      <a href="https://wa.me/{{ loja.whatsapp }}" class="rodape-email" target="_blank" rel="noopener">WhatsApp</a>
+    {% endif %}
+
+    <p class="rodape-copyright">Copyright {{ loja.nome }} - 2026. Todos os direitos reservados.</p>
   </footer>
 
-  {# Aviso de cookies: aparece até a pessoa clicar em "Entendi" #}
+  {# ---------- Aviso de cookies (some depois de "Entendi") ---------- #}
   <div class="aviso-cookies" id="aviso-cookies" hidden>
-    <p>Ao navegar por este site você aceita o uso de cookies para agilizar a sua experiência de compra.</p>
-    <button type="button" class="botao" id="aceitar-cookies">Entendi</button>
+    <p>Ao navegar por este site <strong>você aceita o uso de cookies</strong> para agilizar a sua experiência de compra.</p>
+    <button type="button" id="aceitar-cookies">Entendi</button>
   </div>
 
   <script>
+    // Aviso de cookies: lembra no navegador quem já clicou em "Entendi"
     (function () {
       var aviso = document.getElementById("aviso-cookies");
       var aceitou = false;
@@ -103,6 +140,11 @@
         aviso.hidden = true;
       });
     })();
+
+    // Cabeçalho diminui um pouco quando a página desce
+    window.addEventListener("scroll", function () {
+      document.body.classList.toggle("rolou", window.scrollY > 40);
+    }, { passive: true });
   </script>
   {% block scripts %}{% endblock %}
 </body>

@@ -1,58 +1,62 @@
 {% extends "base.html" %}
 
-{% block titulo %}{{ titulo }} · {{ loja.nome }}{% endblock %}
+{% block titulo %}Compre online produtos de {{ loja.nome }}{% endblock %}
 
 {% block conteudo %}
-<nav class="trilha" aria-label="Você está em">
-  <a href="/">Início</a> › {% if categoria %}<a href="/produtos">Produtos</a> › {% endif %}<span>{{ titulo }}</span>
-</nav>
+<div class="container">
+  <nav class="trilha" aria-label="Você está em">
+    <a href="/">Início</a> <span>.</span>
+    {% if categoria %}<a href="/produtos">Produtos</a> <span>.</span> {{ categoria.nome }}{% else %}Produtos{% endif %}
+  </nav>
 
-<h1>{{ titulo }}</h1>
+  <h1 class="titulo-pagina">{{ titulo }}</h1>
 
-<div class="lista-produtos">
-  {# Filtros: o formulário usa GET, então os filtros ficam no endereço
-     (dá para copiar o link e mandar para alguém com os filtros aplicados) #}
-  <form class="filtros" method="get">
-    <label>
-      Ordenar por
-      <select name="ordem" onchange="this.form.submit()">
-        {% for chave, texto in ordenacoes.items() %}
-          <option value="{{ chave }}" {% if filtro.ordem == chave %}selected{% endif %}>{{ texto }}</option>
+  {# "Filtrar" abre e fecha o painel de filtros (igual à loja atual).
+     O formulário usa GET: os filtros ficam no endereço. #}
+  <details class="filtrar" {% if filtro.cor or filtro.preco_min or filtro.preco_max or filtro.ordem != "novos" %}open{% endif %}>
+    <summary>Filtrar</summary>
+    <form class="filtros" method="get">
+      {% if filtro.busca %}<input type="hidden" name="busca" value="{{ filtro.busca }}">{% endif %}
+
+      <label>Ordenar por
+        <select name="ordem">
+          {% for chave, texto in ordenacoes.items() %}
+            <option value="{{ chave }}" {% if filtro.ordem == chave %}selected{% endif %}>{{ texto }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      {% if cores %}
+      <fieldset>
+        <legend>Cor</legend>
+        <label><input type="radio" name="cor" value="" {% if not filtro.cor %}checked{% endif %}> Todas</label>
+        {% for cor in cores %}
+          <label><input type="radio" name="cor" value="{{ cor }}" {% if filtro.cor == cor %}checked{% endif %}> {{ cor }}</label>
         {% endfor %}
-      </select>
-    </label>
+      </fieldset>
+      {% endif %}
 
-    {% if cores %}
-    <fieldset>
-      <legend>Cor</legend>
-      <label><input type="radio" name="cor" value="" {% if not filtro.cor %}checked{% endif %}> Todas</label>
-      {% for cor in cores %}
-        <label><input type="radio" name="cor" value="{{ cor }}" {% if filtro.cor == cor %}checked{% endif %}> {{ cor }}</label>
-      {% endfor %}
-    </fieldset>
-    {% endif %}
+      <fieldset>
+        <legend>Preço</legend>
+        <div class="faixa-preco">
+          <input type="text" name="preco_min" placeholder="De" inputmode="decimal" value="{{ filtro.preco_min }}">
+          <input type="text" name="preco_max" placeholder="Até" inputmode="decimal" value="{{ filtro.preco_max }}">
+        </div>
+      </fieldset>
 
-    <fieldset>
-      <legend>Preço</legend>
-      <div class="faixa-preco">
-        <input type="text" name="preco_min" placeholder="De" inputmode="decimal" value="{{ filtro.preco_min }}">
-        <input type="text" name="preco_max" placeholder="Até" inputmode="decimal" value="{{ filtro.preco_max }}">
+      <div class="filtros-acoes">
+        <button type="submit" class="botao">Aplicar</button>
+        <a href="{{ request.url.path }}">Limpar filtros</a>
       </div>
-    </fieldset>
+    </form>
+  </details>
 
-    <button type="submit" class="botao">Aplicar</button>
-    <a href="{{ request.url.path }}" class="limpar">Limpar filtros</a>
-  </form>
-
-  <div>
-    <p class="quantidade">{{ produtos | length }} produto{{ "s" if produtos | length != 1 }}</p>
-    <div class="grade">
-      {% for produto in produtos %}
-        {% include "_cartao.html" %}
-      {% else %}
-        <p>Nenhum produto encontrado com esses filtros.</p>
-      {% endfor %}
-    </div>
+  <div class="grade grade-2">
+    {% for produto in produtos %}
+      {% include "_cartao.html" %}
+    {% else %}
+      <p class="centralizado vazio">Nenhum produto encontrado.</p>
+    {% endfor %}
   </div>
 </div>
 {% endblock %}

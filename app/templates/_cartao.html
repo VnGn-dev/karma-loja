@@ -1,22 +1,18 @@
-{# Cartão de um produto. Usado na página inicial, na lista e nos relacionados.
+{# Cartão de um produto, igual ao da loja atual: foto quadrada, nome e
+   preços centralizados. Usado na página inicial, na lista e nos similares.
    Espera uma variável chamada "produto". #}
 <a href="/produtos/{{ produto.slug }}" class="cartao{% if produto.esgotado %} cartao-esgotado{% endif %}">
   <div class="foto">
     {% if produto.imagem %}
       <img src="{{ produto.imagem }}" alt="{{ produto.nome }}" loading="lazy">
-    {% else %}
-      <span class="foto-vazia">{{ produto.nome[0] }}</span>
     {% endif %}
     {% if produto.esgotado %}
-      <span class="etiqueta etiqueta-esgotado">Esgotado</span>
-    {% elif produto.frete_gratis %}
-      <span class="etiqueta">Frete grátis</span>
+      <span class="etiqueta">Esgotado</span>
     {% endif %}
   </div>
-  <h3>{{ produto.nome }}</h3>
-  <p class="preco">{{ produto.preco | brl }}</p>
+  <h3 class="cartao-nome">{{ produto.nome }}</h3>
+  <p class="cartao-preco">{{ produto.preco | brl }}</p>
   {% if not produto.esgotado %}
-    <p class="pix">{{ produto.preco_pix | brl }} no Pix</p>
-    <p class="parcelas">ou 2x de {{ produto.parcela_2x | brl }} sem juros</p>
+    <p class="cartao-pix">{{ produto.preco_pix | brl }} com Pix</p>
   {% endif %}
 </a>

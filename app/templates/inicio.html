@@ -1,31 +1,76 @@
 {% extends "base.html" %}
 
 {% block conteudo %}
-<section class="destaque">
-  <h1>Peças feitas à mão para iluminar a sua casa</h1>
-  <p>Porta-velas e objetos de decoração criados no Studio Kar.ma.</p>
-  <a href="/produtos" class="botao">Ver produtos</a>
-</section>
-
-<section>
-  <div class="titulo-secao">
-    <h2>Produtos</h2>
-    <a href="/produtos">Ver todos</a>
+{# ---------- Carrossel grande ---------- #}
+{% if carrossel %}
+<section class="carrossel" data-carrossel>
+  <div class="carrossel-trilho">
+    {% for imagem in carrossel %}
+      <img src="{{ imagem }}" alt="Carrossel {{ loop.index }}" class="carrossel-slide"
+           {% if not loop.first %}loading="lazy"{% endif %}>
+    {% endfor %}
   </div>
-  <div class="grade">
-    {% for produto in produtos[:8] %}
+  {% if carrossel | length > 1 %}
+  <div class="setas">
+    <button type="button" class="seta" data-anterior aria-label="Anterior">⟵</button>
+    <span data-contador>1 / {{ carrossel | length }}</span>
+    <button type="button" class="seta" data-proximo aria-label="Próximo">⟶</button>
+  </div>
+  {% endif %}
+</section>
+{% endif %}
+
+{# ---------- Produtos em destaque ---------- #}
+<section class="secao container">
+  <h2 class="titulo-secao">Produtos</h2>
+  <div class="grade grade-3">
+    {% for produto in produtos %}
       {% include "_cartao.html" %}
     {% else %}
-      <p>Nenhum produto cadastrado ainda.</p>
+      <p class="centralizado">Nenhum produto disponível no momento.</p>
     {% endfor %}
   </div>
 </section>
 
-{% if loja.instagram %}
-<section class="chamada-instagram">
-  <h2>Acompanhe o ateliê</h2>
-  <p>Bastidores, peças novas e o processo de criação.</p>
-  <a href="{{ loja.instagram }}" class="botao" target="_blank" rel="noopener">Seguir no Instagram</a>
+{# ---------- Banners quadrados ---------- #}
+{% if banners %}
+<section class="banners" data-carrossel>
+  <div class="carrossel-trilho banners-trilho">
+    {% for imagem in banners %}
+      <img src="{{ imagem }}" alt="Banner de {{ loja.nome }}" class="carrossel-slide" loading="lazy">
+    {% endfor %}
+  </div>
+  <div class="setas setas-celular">
+    <button type="button" class="seta" data-anterior aria-label="Anterior">⟵</button>
+    <span data-contador>1 / {{ banners | length }}</span>
+    <button type="button" class="seta" data-proximo aria-label="Próximo">⟶</button>
+  </div>
 </section>
 {% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Carrossel simples: as setas rolam o trilho uma imagem por vez,
+  // e o contador ("1 / 2") acompanha. No celular, dá para arrastar com o dedo.
+  document.querySelectorAll("[data-carrossel]").forEach(function (bloco) {
+    var trilho = bloco.querySelector(".carrossel-trilho");
+    var slides = trilho.querySelectorAll(".carrossel-slide");
+    var contador = bloco.querySelector("[data-contador]");
+    function largura() { return slides[0].getBoundingClientRect().width || trilho.clientWidth; }
+    function atual() { return Math.round(trilho.scrollLeft / largura()); }
+    function ir(posicao) {
+      var total = slides.length;
+      posicao = (posicao + total) % total;
+      trilho.scrollTo({ left: posicao * largura(), behavior: "smooth" });
+    }
+    var anterior = bloco.querySelector("[data-anterior]");
+    var proximo = bloco.querySelector("[data-proximo]");
+    if (anterior) anterior.addEventListener("click", function () { ir(atual() - 1); });
+    if (proximo) proximo.addEventListener("click", function () { ir(atual() + 1); });
+    trilho.addEventListener("scroll", function () {
+      if (contador) contador.textContent = (atual() + 1) + " / " + slides.length;
+    }, { passive: true });
+  });
+</script>
 {% endblock %}

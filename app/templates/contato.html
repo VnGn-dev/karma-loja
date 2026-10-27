@@ -1,11 +1,15 @@
 {% extends "base.html" %}
 
-{% block titulo %}Contato · {{ loja.nome }}{% endblock %}
+{% block titulo %}Contato - {{ loja.nome }}{% endblock %}
 
 {% block conteudo %}
-<div class="pagina-estreita">
-  <h1>Contato</h1>
-  <p>Ficou com alguma dúvida ou quer fazer uma encomenda? Mande uma mensagem.</p>
+<div class="container container-estreito">
+  <nav class="trilha" aria-label="Você está em"><a href="/">Início</a> <span>.</span> Contato</nav>
+  <h1 class="titulo-pagina">Contato</h1>
+
+  {% if loja.email %}
+    <p class="centralizado"><a href="mailto:{{ loja.email }}" class="sublinhado">{{ loja.email }}</a></p>
+  {% endif %}
 
   {% if enviado %}
     <p class="mensagem-sucesso">Mensagem enviada! Responderemos em breve.</p>
@@ -21,7 +25,7 @@
     <label>E-mail
       <input type="email" name="email" required value="{{ dados.email or '' }}">
     </label>
-    <label>Telefone (opcional)
+    <label>Telefone
       <input type="tel" name="telefone" value="{{ dados.telefone or '' }}">
     </label>
     <label>Mensagem
@@ -29,7 +33,7 @@
     </label>
 
     {# Armadilha para robôs: escondido para pessoas, robôs costumam preencher #}
-    <label class="armadilha" aria-hidden="true">Não preencha este campo
+    <label class="armadilha" aria-hidden="true">Não preencher este campo
       <input type="text" name="site" tabindex="-1" autocomplete="off">
     </label>
 

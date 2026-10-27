@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block titulo %}Carrinho · {{ loja.nome }}{% endblock %}
+{% block titulo %}Carrinho - {{ loja.nome }}{% endblock %}
 
 {% block conteudo %}
-<div class="pagina-estreita">
-  <h1>Carrinho</h1>
-  {# Etapa 3 do roteiro: aqui entram os itens, o total e o botão de finalizar #}
+<div class="container container-estreito centralizado">
+  <h1 class="titulo-pagina">Carrinho de compras</h1>
+  {# Etapa 3 do roteiro: itens, total e o botão de finalizar #}
   <p>O carrinho está em construção. Em breve você vai poder finalizar a compra por aqui.</p>
-  <a href="/produtos" class="botao">Continuar vendo os produtos</a>
+  <p><a href="/produtos" class="botao">Ver produtos</a></p>
 </div>
 {% endblock %}

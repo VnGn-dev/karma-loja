@@ -1,102 +1,136 @@
 {% extends "base.html" %}
 
-{% block titulo %}{{ produto.nome }} · {{ loja.nome }}{% endblock %}
-{% block descricao %}Compre {{ produto.nome }} por {{ produto.preco | brl }} na {{ loja.nome }}.{% endblock %}
+{% block titulo %}{{ produto.nome }} - Comprar em {{ loja.nome }}{% endblock %}
+{% block descricao %}Compre online {{ produto.nome }} por {{ produto.preco | brl }}.{% endblock %}
 
 {% block conteudo %}
-<nav class="trilha" aria-label="Você está em">
-  <a href="/">Início</a> ›
-  {% if produto.categoria %}
-    <a href="/categoria/{{ produto.categoria.slug }}">{{ produto.categoria.nome }}</a> ›
-  {% else %}
-    <a href="/produtos">Produtos</a> ›
-  {% endif %}
-  <span>{{ produto.nome }}</span>
-</nav>
-
-<div class="produto">
-  {# Galeria: foto grande + miniaturas. Clicar numa miniatura troca a foto grande. #}
-  <div class="galeria">
-    <div class="foto foto-grande">
-      {% if produto.imagem %}
-        <img src="{{ produto.imagem }}" alt="{{ produto.nome }}" id="foto-principal">
-      {% else %}
-        <span class="foto-vazia">{{ produto.nome[0] }}</span>
-      {% endif %}
-    </div>
-    {% if produto.imagens | length > 1 %}
-    <div class="miniaturas">
-      {% for imagem in produto.imagens %}
-        <button type="button" class="miniatura{% if loop.first %} ativa{% endif %}" data-foto="{{ imagem.url }}">
-          <img src="{{ imagem.url }}" alt="{{ produto.nome }}, foto {{ loop.index }}" loading="lazy">
-        </button>
-      {% endfor %}
-    </div>
-    {% endif %}
-  </div>
-
-  <div class="detalhes">
-    <h1>{{ produto.nome }}</h1>
-
-    <p class="preco preco-grande">{{ produto.preco | brl }}</p>
-    {% if not produto.esgotado %}
-      <p class="pix">{{ produto.preco_pix | brl }} no Pix ({{ desconto_pix }}% de desconto)</p>
-      <p class="parcelas">ou 2x de {{ produto.parcela_2x | brl }} sem juros</p>
-    {% endif %}
-
-    {% if produto.frete_gratis %}<p class="selo">Frete grátis</p>{% endif %}
-
-    {% if produto.esgotado %}
-      <p class="aviso aviso-esgotado">Produto esgotado</p>
-    {% else %}
-      {% if produto.ultima_peca %}
-        <p class="aviso">Atenção, última peça!</p>
-      {% endif %}
-      {# O carrinho será criado na Etapa 3. Por enquanto o botão fica desativado. #}
-      <form class="comprar" action="/carrinho" method="get">
-        <label>
-          Quantidade
-          <input type="number" name="quantidade" value="1" min="1" max="{{ produto.estoque }}">
-        </label>
-        <button type="submit" class="botao" disabled title="O carrinho chega na próxima etapa">
-          Adicionar ao carrinho
-        </button>
-      </form>
-      <p class="observacao">Pedido mínimo de {{ pedido_minimo | brl }}, sem contar o frete.</p>
-    {% endif %}
-
-    {% if produto.descricao %}
-      <div class="descricao">
-        <h2>Descrição</h2>
-        {% for paragrafo in produto.descricao.split("\n") if paragrafo.strip() %}
-          <p>{{ paragrafo }}</p>
+<div class="container">
+  <div class="produto">
+    {# ---------- Fotos: miniaturas na lateral + foto grande ---------- #}
+    <div class="galeria" data-galeria>
+      {% if produto.imagens | length > 1 %}
+      <div class="miniaturas">
+        {% for imagem in produto.imagens %}
+          <button type="button" class="miniatura{% if loop.first %} ativa{% endif %}" data-indice="{{ loop.index0 }}" aria-label="Foto {{ loop.index }}">
+            <img src="{{ imagem.url }}" alt="" loading="lazy">
+          </button>
         {% endfor %}
       </div>
-    {% endif %}
-  </div>
-</div>
+      {% endif %}
 
-{% if relacionados %}
-<section class="relacionados">
-  <h2>Você também pode gostar</h2>
-  <div class="grade">
-    {% for produto in relacionados %}
-      {% include "_cartao.html" %}
-    {% endfor %}
+      <div class="galeria-principal">
+        <div class="carrossel-trilho galeria-trilho">
+          {% for imagem in produto.imagens %}
+            <img src="{{ imagem.url }}" alt="{{ produto.nome }}" class="carrossel-slide" {% if not loop.first %}loading="lazy"{% endif %}>
+          {% else %}
+            <div class="carrossel-slide foto-vazia"></div>
+          {% endfor %}
+        </div>
+        {% if produto.imagens | length > 1 %}
+        <div class="setas">
+          <button type="button" class="seta" data-anterior aria-label="Foto anterior">⟵</button>
+          <span data-contador>1 / {{ produto.imagens | length }}</span>
+          <button type="button" class="seta" data-proximo aria-label="Próxima foto">⟶</button>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    {# ---------- Informações e compra ---------- #}
+    <div class="detalhes">
+      <nav class="trilha" aria-label="Você está em">
+        <a href="/">Início</a> <span>.</span>
+        {% if produto.categoria %}
+          <a href="/categoria/{{ produto.categoria.slug }}">{{ produto.categoria.nome }}</a>
+        {% else %}
+          <a href="/produtos">Produtos</a>
+        {% endif %}
+        <span>.</span> {{ produto.nome }}
+      </nav>
+
+      <h1 class="produto-nome">{{ produto.nome }}</h1>
+      <p class="produto-preco">{{ produto.preco | brl }}</p>
+
+      {% if produto.esgotado %}
+        <p class="produto-aviso">Produto esgotado</p>
+      {% else %}
+        <p class="produto-pix">{{ produto.preco_pix | brl }} com Pix</p>
+        <p class="produto-parcelas">2 x de {{ produto.parcela_2x | brl }} sem juros</p>
+        <p class="produto-parcelas">{{ desconto_pix }}% de desconto <strong>pagando com Pix</strong></p>
+
+        {% if produto.ultima_peca %}
+          <p class="produto-aviso">Atenção, última peça!</p>
+        {% endif %}
+
+        {# O carrinho chega na Etapa 3. Por enquanto, o botão fica desativado. #}
+        <form class="comprar" action="/carrinho" method="get">
+          <div class="quantidade" data-quantidade>
+            <button type="button" data-menos aria-label="Diminuir">−</button>
+            <input type="number" name="quantidade" value="1" min="1" max="{{ produto.estoque }}" aria-label="Quantidade">
+            <button type="button" data-mais aria-label="Aumentar">+</button>
+          </div>
+          <button type="submit" class="botao-comprar" disabled title="O carrinho chega na próxima etapa">Comprar</button>
+        </form>
+        <p class="produto-observacao">Pedido mínimo de {{ pedido_minimo | brl }}, sem contar o frete. Frete grátis.</p>
+      {% endif %}
+
+      {% if produto.descricao %}
+        <div class="produto-descricao">
+          {% for paragrafo in produto.descricao.split("\n") if paragrafo.strip() %}
+            <p>{{ paragrafo }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
   </div>
-</section>
-{% endif %}
+
+  {% if relacionados %}
+  <section class="secao">
+    <h2 class="titulo-secao">Produtos similares</h2>
+    <div class="grade grade-3">
+      {% for produto in relacionados %}
+        {% include "_cartao.html" %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-  // Troca a foto grande quando clica numa miniatura
-  document.querySelectorAll(".miniatura").forEach(function (botao) {
-    botao.addEventListener("click", function () {
-      document.getElementById("foto-principal").src = botao.dataset.foto;
-      document.querySelectorAll(".miniatura").forEach(function (b) { b.classList.remove("ativa"); });
-      botao.classList.add("ativa");
-    });
-  });
+  (function () {
+    // Galeria: setas, contador "1 / 3" e miniaturas
+    var galeria = document.querySelector("[data-galeria]");
+    if (galeria) {
+      var trilho = galeria.querySelector(".galeria-trilho");
+      var total = trilho.querySelectorAll(".carrossel-slide").length;
+      var contador = galeria.querySelector("[data-contador]");
+      var miniaturas = galeria.querySelectorAll(".miniatura");
+      function atual() { return Math.round(trilho.scrollLeft / trilho.clientWidth); }
+      function ir(i) { trilho.scrollTo({ left: ((i + total) % total) * trilho.clientWidth, behavior: "smooth" }); }
+      galeria.querySelectorAll("[data-anterior]").forEach(function (b) { b.addEventListener("click", function () { ir(atual() - 1); }); });
+      galeria.querySelectorAll("[data-proximo]").forEach(function (b) { b.addEventListener("click", function () { ir(atual() + 1); }); });
+      miniaturas.forEach(function (m) { m.addEventListener("click", function () { ir(Number(m.dataset.indice)); }); });
+      trilho.addEventListener("scroll", function () {
+        var i = atual();
+        if (contador) contador.textContent = (i + 1) + " / " + total;
+        miniaturas.forEach(function (m, n) { m.classList.toggle("ativa", n === i); });
+      }, { passive: true });
+    }
+
+    // Botões − e + da quantidade
+    var caixa = document.querySelector("[data-quantidade]");
+    if (caixa) {
+      var campo = caixa.querySelector("input");
+      function mudar(delta) {
+        var valor = Number(campo.value || 1) + delta;
+        valor = Math.max(Number(campo.min), Math.min(Number(campo.max), valor));
+        campo.value = valor;
+      }
+      caixa.querySelector("[data-menos]").addEventListener("click", function () { mudar(-1); });
+      caixa.querySelector("[data-mais]").addEventListener("click", function () { mudar(1); });
+    }
+  })();
 </script>
 {% endblock %}

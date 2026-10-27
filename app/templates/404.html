@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
-{% block titulo %}Página não encontrada · {{ loja.nome }}{% endblock %}
+{% block titulo %}Página não encontrada - {{ loja.nome }}{% endblock %}
 
 {% block conteudo %}
-<div class="pagina-estreita centralizado">
-  <h1>Página não encontrada</h1>
+<div class="container container-estreito centralizado">
+  <h1 class="titulo-pagina">Página não encontrada</h1>
   <p>O endereço que você procurou não existe ou o produto não está mais disponível.</p>
-  <a href="/produtos" class="botao">Ver os produtos</a>
+  <p><a href="/produtos" class="botao">Ver produtos</a></p>
 </div>
 {% endblock %}

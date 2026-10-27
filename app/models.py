@@ -75,6 +75,14 @@ class Imagem(SQLModel, table=True):
     produto: Produto | None = Relationship(back_populates="imagens")
 
 
+class Assinante(SQLModel, table=True):
+    """E-mails cadastrados na newsletter do rodapé."""
+
+    id: int | None = Field(default=None, primary_key=True)
+    email: str = Field(unique=True, index=True)
+    criado_em: datetime = Field(default_factory=agora)
+
+
 class Mensagem(SQLModel, table=True):
     """Mensagens enviadas pelo formulário de contato."""
 

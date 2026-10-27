@@ -1,23 +1,20 @@
 {% extends "base.html" %}
 
-{% block titulo %}Sobre · {{ loja.nome }}{% endblock %}
+{% block titulo %}Sobre - {{ loja.nome }}{% endblock %}
 
 {% block conteudo %}
-<div class="pagina-estreita">
-  <h1>Sobre o Studio Kar.ma</h1>
+<div class="container container-estreito">
+  <nav class="trilha" aria-label="Você está em"><a href="/">Início</a> <span>.</span> Sobre</nav>
+  <h1 class="titulo-pagina">Sobre o Studio Kar.ma</h1>
 
-  {# TEXTO PROVISÓRIO: trocar pelo texto da artista #}
-  <p>
-    O Studio Kar.ma nasceu da vontade de criar peças que deixam a casa mais
-    aconchegante. Cada porta-vela e cada objeto é feito à mão, um por um,
-    com atenção e carinho.
-  </p>
-  <p>
-    Por serem artesanais, as peças têm pequenas variações que as tornam
-    únicas. Muitas são feitas em quantidade limitada, então, quando acabam,
-    podem não voltar.
-  </p>
+  {# TEXTO PROVISÓRIO: trocar pelo texto da artista.
+     Esta página ainda não aparece no menu (a loja atual não tem "Sobre").
+     Quando o texto estiver pronto, adicione o link no base.html. #}
+  <div class="texto">
+    <p>Cada peça do Studio Kar.ma é feita à mão, uma por uma, com atenção e carinho.</p>
+    <p>Por serem artesanais, as peças têm pequenas diferenças que as tornam únicas.</p>
+  </div>
 
-  <a href="/produtos" class="botao">Conheça as peças</a>
+  <p class="centralizado"><a href="/produtos" class="botao">Ver produtos</a></p>
 </div>
 {% endblock %}

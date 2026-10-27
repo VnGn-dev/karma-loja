@@ -18,12 +18,14 @@ from app.models import Categoria, Imagem, Produto
 CDN = "https://dcdn-us.mitiendanube.com/stores/006/804/689/products/"
 
 CATEGORIAS = [
-    {"nome": "Decoração", "slug": "decoracao"},
+    {"nome": "DECORAÇÃO", "slug": "decoracao"},
 ]
 
+# Nomes escritos igual à loja atual. Para mudar, é só editar aqui e rodar
+# o seed de novo (ou, depois, pelo painel da artista).
 PRODUTOS = [
     {
-        "nome": "Porta-vela Butterfly",
+        "nome": "PORTA_VELA BUTTERFLY",
         "slug": "porta-vela-butterfly",
         "preco": Decimal("69.90"),
         "estoque": 1,
@@ -36,7 +38,7 @@ PRODUTOS = [
         ],
     },
     {
-        "nome": "Porta-vela Flor",
+        "nome": "PORTA_VELA FLOR",
         "slug": "porta-vela-flor",
         "preco": Decimal("39.00"),
         "estoque": 1,
@@ -49,7 +51,7 @@ PRODUTOS = [
         ],
     },
     {
-        "nome": "Porta-vela Amarelo",
+        "nome": "PORTA_VELA",
         "slug": "porta-vela-amarelo",
         "preco": Decimal("49.90"),
         "estoque": 1,
@@ -87,9 +89,10 @@ def buscar_ou_criar_categoria(session: Session, nome: str, slug: str) -> Categor
     categoria = session.exec(select(Categoria).where(Categoria.slug == slug)).first()
     if categoria is None:
         categoria = Categoria(nome=nome, slug=slug)
-        session.add(categoria)
-        session.commit()
-        session.refresh(categoria)
+    categoria.nome = nome
+    session.add(categoria)
+    session.commit()
+    session.refresh(categoria)
     return categoria
 
 

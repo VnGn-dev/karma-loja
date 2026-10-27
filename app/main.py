@@ -1,5 +1,6 @@
 from contextlib import asynccontextmanager
 from decimal import Decimal, InvalidOperation
+from urllib.parse import urlparse
 
 from fastapi import Depends, FastAPI, Form, HTTPException, Request
 from fastapi.responses import JSONResponse, RedirectResponse
@@ -8,9 +9,9 @@ from fastapi.templating import Jinja2Templates
 from sqlmodel import Session, select
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.config import DESCONTO_PIX, LOJA, PEDIDO_MINIMO
+from app.config import BANNERS, CARROSSEL, DESCONTO_PIX, LOJA, PEDIDO_MINIMO
 from app.database import criar_tabelas, engine, get_session
-from app.models import Categoria, Mensagem, Produto
+from app.models import Assinante, Categoria, Mensagem, Produto
 
 
 @asynccontextmanager
@@ -28,10 +29,10 @@ templates = Jinja2Templates(directory="app/templates")
 # ---------- Filtros usados nos modelos HTML ----------
 
 def formatar_brl(valor: Decimal) -> str:
-    """49.9 -> 'R$ 49,90' (padrão brasileiro)."""
+    """49.9 -> 'R$49,90' (padrão brasileiro, escrito igual à loja atual)."""
     texto = f"{valor:,.2f}"
     texto = texto.replace(",", "X").replace(".", ",").replace("X", ".")
-    return f"R$ {texto}"
+    return f"R${texto}"
 
 
 templates.env.filters["brl"] = formatar_brl
@@ -81,13 +82,15 @@ ORDENACOES = {
 
 @app.get("/")
 def pagina_inicio(request: Request, session: Session = Depends(get_session)):
+    # Na vitrine da página inicial aparecem só os produtos com estoque
     consulta = (
         select(Produto)
-        .where(Produto.ativo)
-        .order_by(Produto.estoque == 0, Produto.criado_em.desc())  # esgotados por último
+        .where(Produto.ativo, Produto.estoque > 0)
+        .order_by(Produto.criado_em.desc())
     )
     produtos = session.exec(consulta).all()
-    return pagina(request, "inicio.html", produtos=produtos)
+    return pagina(request, "inicio.html", produtos=produtos,
+                  carrossel=CARROSSEL, banners=BANNERS)
 
 
 @app.get("/produtos")
@@ -97,10 +100,13 @@ def pagina_produtos(
     preco_min: str | None = None,
     preco_max: str | None = None,
     ordem: str = "novos",
+    busca: str | None = None,
     session: Session = Depends(get_session),
 ):
-    return listar(request, session, titulo="Produtos", cor=cor,
-                  preco_min=preco_min, preco_max=preco_max, ordem=ordem)
+    titulo = f'Resultados para "{busca}"' if busca else "Produtos"
+    return listar(request, session, titulo=titulo, cor=cor,
+                  preco_min=preco_min, preco_max=preco_max, ordem=ordem,
+                  busca=busca)
 
 
 @app.get("/categoria/{slug}")
@@ -121,11 +127,14 @@ def pagina_categoria(
 
 
 def listar(request, session, titulo, cor, preco_min, preco_max, ordem,
-           categoria=None):
+           categoria=None, busca=None):
     """Lista de produtos com filtros. Usada por /produtos e /categoria/..."""
     consulta = select(Produto).where(Produto.ativo)
     if categoria:
         consulta = consulta.where(Produto.categoria_id == categoria.id)
+    if busca:
+        # ilike = "contém", sem diferenciar maiúsculas de minúsculas
+        consulta = consulta.where(Produto.nome.ilike(f"%{busca.strip()}%"))
 
     # Cores disponíveis para o filtro (antes de filtrar por cor)
     cores = sorted({p.cor for p in session.exec(consulta).all() if p.cor})
@@ -152,7 +161,8 @@ def listar(request, session, titulo, cor, preco_min, preco_max, ordem,
         produtos=session.exec(consulta).all(),
         cores=cores,
         filtro={"cor": cor or "", "preco_min": preco_min or "",
-                "preco_max": preco_max or "", "ordem": ordem},
+                "preco_max": preco_max or "", "ordem": ordem,
+                "busca": busca or ""},
         ordenacoes={chave: texto for chave, (texto, _) in ORDENACOES.items()},
     )
 
@@ -217,6 +227,22 @@ def enviar_contato(
     session.commit()
     # Redireciona depois de salvar (assim, apertar F5 não envia de novo)
     return RedirectResponse("/contato?enviado=true", status_code=303)
+
+
+@app.post("/newsletter")
+def assinar_newsletter(request: Request, email: str = Form(""),
+                       session: Session = Depends(get_session)):
+    email = email.strip().lower()
+    # Volta para a página onde a pessoa estava. Usa só o "caminho" (/produtos,
+    # por exemplo), nunca um endereço de outro site.
+    voltar = urlparse(request.headers.get("referer") or "").path or "/"
+    if "@" not in email:
+        return RedirectResponse(f"{voltar}?newsletter=erro", status_code=303)
+    ja_existe = session.exec(select(Assinante).where(Assinante.email == email)).first()
+    if not ja_existe:
+        session.add(Assinante(email=email))
+        session.commit()
+    return RedirectResponse(f"{voltar}?newsletter=ok", status_code=303)
 
 
 # ---------- API (JSON) ----------
